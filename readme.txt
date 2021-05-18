@@ -1,0 +1,2 @@
+buildSrc:是内置插件的使用方式
+cooker-plugin:是外部插件的使用

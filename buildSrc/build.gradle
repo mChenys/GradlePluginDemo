@@ -1,0 +1,21 @@
+// 使用java库来编写插件
+//apply plugin: 'java-library'
+
+// 使用groovy库来编写插件
+apply plugin: 'groovy'
+sourceSets {
+    main {
+        //指定 groovy的源码目录
+        groovy {
+            srcDir 'src/main/groovy'
+        }
+        // 指定java的源码目录
+        /* java{
+             srcDir 'src/main/java'
+         }*/
+        // 指定资源目录
+        resources {
+            srcDir 'src/main/resources'
+        }
+    }
+}
