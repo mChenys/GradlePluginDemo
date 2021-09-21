@@ -2,3 +2,4 @@ rootProject.name = "GradlePlugin"
 include ':app'
 println '初始化阶段开始...'
 include ':cooker-plugin'
+include ':dd-plugin'
