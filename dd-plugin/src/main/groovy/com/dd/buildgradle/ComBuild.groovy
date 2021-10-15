@@ -16,8 +16,12 @@ class ComBuild implements Plugin<Project> {
         String taskNames = project.gradle.startParameter.taskNames.toString()
         System.out.println("1》》》taskNames is " + taskNames) // 例如：:app:assembleDebug
         String module = project.path.replace(":", "")
-        System.out.println("2》》》current module is " + module)
+        System.out.println("2》》》current module is " + module+" and project.path is "+project.path)
         AssembleTask assembleTask = getTaskInfo(project.gradle.startParameter.taskNames)
+
+        if (!project.rootProject.hasProperty("mainmodulename")) {
+            throw new RuntimeException("you should set compilemodule in rootproject's gradle.properties")
+        }
 
         if (assembleTask.isAssemble) {
             fetchMainModulename(project, assembleTask)
@@ -63,7 +67,7 @@ class ComBuild implements Plugin<Project> {
                     }
                 }
             }
-            System.out.println("apply plugin is " + 'com.android.application')
+            System.out.println("6》》》apply plugin is " + 'com.android.application')
             if (assembleTask.isAssemble && module.equals(compilemodule)) {
                 // 添加依赖
                 compileComponents(assembleTask, project)
@@ -88,9 +92,6 @@ class ComBuild implements Plugin<Project> {
      * @param assembleTask
      */
     private void fetchMainModulename(Project project, AssembleTask assembleTask) {
-        if (!project.rootProject.hasProperty("mainmodulename")) {
-            throw new RuntimeException("you should set compilemodule in rootproject's gradle.properties")
-        }
         if (assembleTask.modules.size() > 0 && assembleTask.modules.get(0) != null
                 && assembleTask.modules.get(0).trim().length() > 0
                 && !assembleTask.modules.get(0).equals("all")) {
@@ -149,7 +150,7 @@ class ComBuild implements Plugin<Project> {
             return
         }
         for (String str : compileComponents) {
-            System.out.println("6》》》${project.name}需要依赖的组件 is " + str)
+            System.out.println("7》》》${project.name}需要依赖的组件 is " + str)
             if (str.contains(":")) {
                 /**
                  * 示例语法:groupId:artifactId:version(@aar)
