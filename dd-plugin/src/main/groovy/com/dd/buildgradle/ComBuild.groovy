@@ -15,8 +15,8 @@ class ComBuild implements Plugin<Project> {
 
         String taskNames = project.gradle.startParameter.taskNames.toString()
         System.out.println("1》》》taskNames is " + taskNames) // 例如：:app:assembleDebug
-        String module = project.path.replace(":", "")
-        System.out.println("2》》》current module is " + module+" and project.path is "+project.path)
+        String module = project.path.substring(project.path.lastIndexOf(":")+1)
+        System.out.println("2》》》current module is " + module + " and project.path is " + project.path)
         AssembleTask assembleTask = getTaskInfo(project.gradle.startParameter.taskNames)
 
         if (!project.rootProject.hasProperty("mainmodulename")) {
@@ -71,8 +71,10 @@ class ComBuild implements Plugin<Project> {
             if (assembleTask.isAssemble && module.equals(compilemodule)) {
                 // 添加依赖
                 compileComponents(assembleTask, project)
-                // 添加transfrom
-                project.android.registerTransform(new ComCodeTransform(project))
+                // 添加transfrom 会报错 No such property: Format for class: com.dd.buildgradle.ComCodeTransform
+                //project.android.registerTransform(new ComCodeTransform(project))
+
+                System.out.println("7》》》 compilemodule=${compilemodule} add ComCodeTransform")
             }
         } else {
             // library工程
@@ -150,14 +152,20 @@ class ComBuild implements Plugin<Project> {
             return
         }
         for (String str : compileComponents) {
-            System.out.println("7》》》${project.name}需要依赖的组件 is " + str)
+            System.out.println("8》》》${project.name}需要依赖的组件 is " + str)
             if (str.contains(":")) {
-                /**
-                 * 示例语法:groupId:artifactId:version(@aar)
-                 * compileComponent=com.luojilab.reader:readercomponent:1.0.0
-                 * 注意，前提是已经将组件aar文件发布到maven上，并配置了相应的repositories
-                 */
-                project.dependencies.add("implementation", str)
+                if (str.startsWith(":")) {
+                    // 本地的多级module
+                    project.dependencies.add("implementation", project.project(str))
+                } else {
+                    /**
+                     * 在线的网络库
+                     * 示例语法:groupId:artifactId:version(@aar)
+                     * compileComponent=com.luojilab.reader:readercomponent:1.0.0
+                     * 注意，前提是已经将组件aar文件发布到maven上，并配置了相应的repositories
+                     */
+                    project.dependencies.add("implementation", str)
+                }
                 System.out.println("add dependencies lib  : " + str)
             } else {
                 /**
